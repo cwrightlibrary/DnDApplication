@@ -1,2 +1,3 @@
-# DnDApplication
-🗡️ A DnD API for tracking stats
+# 🗡️ DnD Application
+
+A DnD API for tracking stats.
