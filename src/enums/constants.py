@@ -23,3 +23,8 @@ class BaseRace(BaseModel):
     speed: int = Field(ge=1, le=100, default=30)
     languages: List[str] = ["Common"]
     abilities: Abilities = Field(default_factory=Abilities)
+
+
+class BaseClass(BaseModel):
+    level: int = Field(ge=1, le=20, default=1)
+    proficiency_bonus: int = Field(ge=2, le=6)
