@@ -1,244 +1,72 @@
-from src.enums.constants import BaseRace
-
-from pydantic import Field
-from typing import Dict, List, Literal
-
-
-class Dragonborn(BaseRace):
-    size: Literal["Medium"] = "Medium"
-    speed: int = Field(ge=1, le=100, default=30)
-    draconic_ancestry: Literal[
-        "Black",
-        "Blue",
-        "Brass",
-        "Bronze",
-        "Copper",
-        "Gold",
-        "Green",
-        "Red",
-        "Silver",
-        "White",
-    ] = "Black"
-    damage_type: Literal["Acid", "Lightning", "Fire", "Poison", "Cold"] = "Acid"
-    breath_weapon: Literal["5x30 line", "15 cone"] = "5x30 line"
-
-    def modifiers(self) -> None:
-        self.abilities.strength += 2
-        self.abilities.charisma += 1
-
-        ancestry_damage: Dict[
-            Literal[
-                "Black",
-                "Blue",
-                "Brass",
-                "Bronze",
-                "Copper",
-                "Gold",
-                "Green",
-                "Red",
-                "Silver",
-                "White",
-            ],
-            Literal["Acid", "Lightning", "Fire", "Poison", "Cold"],
-        ] = {
-            "Black": "Acid",
-            "Blue": "Lightning",
-            "Brass": "Fire",
-            "Bronze": "Lightning",
-            "Copper": "Acid",
-            "Gold": "Fire",
-            "Green": "Poison",
-            "Red": "Fire",
-            "Silver": "Cold",
-            "White": "Cold",
-        }
-
-        ancestry_weapon: Dict[
-            Literal[
-                "Black",
-                "Blue",
-                "Brass",
-                "Bronze",
-                "Copper",
-                "Gold",
-                "Green",
-                "Red",
-                "Silver",
-                "White",
-            ],
-            Literal["5x30 line", "15 cone"],
-        ] = {
-            "Black": "5x30 line",
-            "Blue": "5x30 line",
-            "Brass": "5x30 line",
-            "Bronze": "5x30 line",
-            "Copper": "5x30 line",
-            "Gold": "15 cone",
-            "Green": "15 cone",
-            "Red": "15 cone",
-            "Silver": "15 cone",
-            "White": "15 cone",
-        }
-
-        self.damage_type = ancestry_damage[self.draconic_ancestry]
-        self.breath_weapon = ancestry_weapon[self.draconic_ancestry]
+import json
+from gc import collect
+from pathlib import Path
 
 
-class Dwarf(BaseRace):
-    size: Literal["Medium"] = "Medium"
-    speed: int = Field(ge=1, le=100, default=25)
-    subrace: Literal["None", "Hill", "Mountain"] = "None"
-    darkvision: int = 60
-    dwarven_resilience: Dict[
-        Literal["Saving Throws", "Resistance"], Literal["Poison"]
-    ] = {
-        "Saving Throws": "Poison",
-        "Resistance": "Poison",
-    }
-    languages: List[str] = ["Common", "Dwarvish"]
+def read_json(filepath: Path):
+    try:
+        if filepath.exists():
+            with filepath.open(mode="r", encoding="utf-8") as f:
+                data = json.load(f)
+                f.close()
 
-    def modifiers(self) -> None:
-        self.abilities.constitution += 2
-
-        if self.subrace == "Hill":
-            self.abilities.wisdom += 1
-        elif self.subrace == "Mountain":
-            self.abilities.strength += 2
+            if data:
+                return data
+    except Exception as e:
+        print(e)
 
 
-class Elf(BaseRace):
-    size: Literal["Medium"] = "Medium"
-    speed: int = Field(ge=1, le=100, default=30)
-    subrace: Literal["None", "Drow", "High", "Wood"] = "None"
-    darkvision: int = 60
-    languages: List[str] = ["Common", "Elvish"]
+if __name__ == "__main__":
+    data = read_json(Path("assets/races.json"))
+    collected_data = {}
 
-    def modifiers(self) -> None:
-        if self.subrace == "Drow":
-            self.abilities.charisma += 1
-        elif self.subrace == "High":
-            self.abilities.intelligence += 1
-        elif self.subrace == "Wood":
-            self.abilities.wisdom += 1
+    for item in data["race"]:
+        if item["source"] == "PHB":
+            if item["name"] not in collected_data:
+                collected_data[item["name"]] = {
+                    "size": item["size"],
+                    "speed": item["speed"],
+                }
 
+                if "ability" in item:
+                    if "ability" not in collected_data[item["name"]]:
+                        collected_data[item["name"]]["ability"] = {}
 
-class Gnome(BaseRace):
-    size: Literal["Small"] = "Small"
-    speed: int = Field(ge=1, le=100, default=25)
-    subrace: Literal["None", "Forest", "Rock"] = "None"
-    languages: List[str] = ["Common", "Gnomish"]
+                    if "choose" in item["ability"][0]:
+                        for k, v in item["ability"][0].items():
+                            if k == "choose":
+                                if (
+                                    "choose_from"
+                                    not in collected_data[item["name"]]["ability"]
+                                ):
+                                    collected_data[item["name"]]["ability"][
+                                        "choose_from"
+                                    ] = {"count": item["ability"][0]["choose"]["count"]}
+                                collected_data[item["name"]]["ability"]["choose_from"][
+                                    k
+                                ] = v
 
-    def modifiers(self) -> None:
-        self.abilities.intelligence += 2
-        if self.subrace == "Forest":
-            self.abilities.dexterity += 1
-        elif self.subrace == "Rock":
-            self.abilities.constitution += 1
+                    else:
+                        for k, v in item["ability"][0].items():
+                            collected_data[item["name"]]["ability"][k] = v
 
+                if "heightAndWeight" in item:
+                    for k, v in item["heightAndWeight"].items():
+                        if "height_weight" not in collected_data[item["name"]]:
+                            collected_data[item["name"]]["height_weight"] = {}
+                        collected_data[item["name"]]["height_weight"][k] = v
 
-class HalfElf(BaseRace):
-    size: Literal["Medium"] = "Medium"
-    speed: int = Field(ge=1, le=100, default=30)
-    darkvision: int = 60
-    languages: List[str] = ["Common", "Elvish"]
+                if "age" in item:
+                    for k, v in item["age"].items():
+                        if "age" not in collected_data[item["name"]]:
+                            collected_data[item["name"]]["age"] = {}
+                        collected_data[item["name"]]["age"][k] = v
 
-    def modifiers(
-        self,
-        ability_add: Literal[
-            "strength", "dexterity", "constitution", "intelligence", "wisdom"
-        ],
-        num_abilities_add: int = 1,
-    ) -> None:
-        self.abilities.charisma += 2
-        can_add: List[
-            Literal["strength", "dexterity", "constitution", "intelligence", "wisdom"]
-        ] = ["strength", "dexterity", "constitution", "intelligence", "wisdom"]
-        for i in range(0, num_abilities_add + 1):
-            if ability_add in can_add:
-                if ability_add == "strength":
-                    self.abilities.strength += 1
-                elif ability_add == "dexterity":
-                    self.abilities.dexterity += 1
-                elif ability_add == "constitution":
-                    self.abilities.constitution += 1
-                elif ability_add == "intelligence":
-                    self.abilities.intelligence += 1
-                elif ability_add == "wisdom":
-                    self.abilities.wisdom += 1
-                can_add.remove(ability_add)
+                if "languageProficiencies" in item:
+                    for k, v in item["languageProficiencies"].items():
+                        if "language_proficiencies" not in collected_data[item["name"]]:
+                            collected_data[item["name"]]["language_proficiencies"] = {}
+                        collected_data[item["name"]]["language_proficiencies"][k] = v
 
-
-class HalfOrc(BaseRace):
-    size: Literal["Medium"] = "Medium"
-    speed: int = Field(ge=1, le=100, default=30)
-    languages: List[str] = ["Common", "Orc"]
-
-    def modifiers(self) -> None:
-        self.abilities.strength += 2
-        self.abilities.constitution += 1
-
-
-class Halfling(BaseRace):
-    size: Literal["Small"] = "Small"
-    speed: int = Field(ge=1, le=100, default=25)
-    subrace: Literal["None", "Lightfoot", "Stout"] = "None"
-    languages: List[str] = ["Common", "Halfling"]
-
-    def modifiers(self) -> None:
-        self.abilities.dexterity += 2
-
-        if self.subrace == "Lightfoot":
-            self.abilities.charisma += 1
-        elif self.subrace == "Stout":
-            self.abilities.constitution += 1
-
-
-class Human(BaseRace):
-    size: Literal["Medium"] = "Medium"
-    speed: int = Field(ge=1, le=100, default=25)
-    subrace: Literal["None", "Variant"] = "None"
-    languages: List[str] = ["Common"]
-
-    def modifiers(
-        self,
-        ability_add: Literal[
-            "strength", "dexterity", "constitution", "intelligence", "wisdom"
-        ],
-        num_abilities_add: int = 2,
-    ) -> None:
-        if self.subrace == "None":
-            self.abilities.strength += 1
-            self.abilities.dexterity += 1
-            self.abilities.constitution += 1
-            self.abilities.intelligence += 1
-            self.abilities.wisdom += 1
-            self.abilities.charisma += 1
-        elif self.subrace == "Variant":
-            can_add: List[
-                Literal[
-                    "strength", "dexterity", "constitution", "intelligence", "wisdom"
-                ]
-            ] = ["strength", "dexterity", "constitution", "intelligence", "wisdom"]
-            for i in range(0, num_abilities_add + 1):
-                if ability_add in can_add:
-                    if ability_add == "strength":
-                        self.abilities.strength += 1
-                    elif ability_add == "dexterity":
-                        self.abilities.dexterity += 1
-                    elif ability_add == "constitution":
-                        self.abilities.constitution += 1
-                    elif ability_add == "intelligence":
-                        self.abilities.intelligence += 1
-                    elif ability_add == "wisdom":
-                        self.abilities.wisdom += 1
-                    can_add.remove(ability_add)
-
-
-class Tiefling(BaseRace):
-    size: Literal["Medium"] = "Medium"
-    speed: int = Field(ge=1, le=100, default=30)
-    languages: List[str] = ["Common", "Infernal"]
-
-    def modifiers(self) -> None:
-        self.abilities.charisma += 2
-        self.abilities.intelligence += 1
+    for k, v in collected_data.items():
+        print(k, v)
