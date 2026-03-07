@@ -15,9 +15,12 @@ def read_json(filepath: Path):
         print(e)
 
 
-if __name__ == "__main__":
+def gather_json_data() -> None:
     data = read_json(Path("assets/races.json"))
     collected_data = {}
+
+    if not data:
+        return
 
     for item in data["race"]:
         if item["source"] == "PHB":
@@ -62,12 +65,19 @@ if __name__ == "__main__":
                         collected_data[item["name"]]["age"][k] = v
 
                 if "languageProficiencies" in item:
-                    for l in item["languageProficiencies"]:
-                        print(f"{item['name']}\t{l}")
-                    # for k, v in item["languageProficiencies"].items():
-                    #     if "language_proficiencies" not in collected_data[item["name"]]:
-                    #         collected_data[item["name"]]["language_proficiencies"] = {}
-                    #     collected_data[item["name"]]["language_proficiencies"][k] = v
+                    for lang_item in item["languageProficiencies"]:
+                        if "language_proficiencies" not in collected_data[item["name"]]:
+                            collected_data[item["name"]]["language_proficiencies"] = []
+                        for k, v in lang_item.items():
+                            if k != "anyStandard" and v:
+                                collected_data[item["name"]]["language_proficiencies"].append(k.title())
 
-    # for k, v in collected_data.items():
-    #     print(k, v)
+    for k, v in collected_data.items():
+        print(k)
+        if isinstance(v, dict):
+            for sk, sv in v.items():
+                print(sk, sv)
+
+
+if __name__ == "__main__":
+    gather_json_data()
