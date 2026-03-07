@@ -1,5 +1,4 @@
 import json
-from gc import collect
 from pathlib import Path
 
 
@@ -63,10 +62,12 @@ if __name__ == "__main__":
                         collected_data[item["name"]]["age"][k] = v
 
                 if "languageProficiencies" in item:
-                    for k, v in item["languageProficiencies"].items():
-                        if "language_proficiencies" not in collected_data[item["name"]]:
-                            collected_data[item["name"]]["language_proficiencies"] = {}
-                        collected_data[item["name"]]["language_proficiencies"][k] = v
+                    for l in item["languageProficiencies"]:
+                        print(f"{item['name']}\t{l}")
+                    # for k, v in item["languageProficiencies"].items():
+                    #     if "language_proficiencies" not in collected_data[item["name"]]:
+                    #         collected_data[item["name"]]["language_proficiencies"] = {}
+                    #     collected_data[item["name"]]["language_proficiencies"][k] = v
 
-    for k, v in collected_data.items():
-        print(k, v)
+    # for k, v in collected_data.items():
+    #     print(k, v)
