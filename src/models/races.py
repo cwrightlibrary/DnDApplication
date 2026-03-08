@@ -1,5 +1,5 @@
 from typing import Annotated, Literal
-from pydantic import Field, computed_field
+from pydantic import Field, computed_field, model_validator
 
 from src.enums.race_constants import (
     Ability,
@@ -94,6 +94,10 @@ class Gnome(BaseRace):
 # Half-Elf
 class HalfElf(BaseRace):
     name: Literal["Half-Elf"] = "Half-Elf"
+    choose_abilities: int = 2
+    chosen_abilities: list[Literal["strength", "dexterity", "constitution", "intelligence", "wisdom"]]
+    choose_skills: int = 2
+    # chosen_skills: list[Literal[""]]
 
     speed: Annotated[int, Field(ge=10, le=40)] = 30
     ability: Ability = Field(default_factory=lambda: Ability(charisma=2))
@@ -102,3 +106,13 @@ class HalfElf(BaseRace):
     darkvision: int = 60
     language_proficiencies: list[str] = Field(default_factory=lambda: ["Common", "Elvish"])
     
+    @model_validator(mode="after")
+    def apply_chosen_abilities(self) -> "HalfElf":
+         if len(self.chosen_abilities) != self.choose_abilities:
+             raise ValueError(f"Must choose exactly {self.choose_abilities} abilities")
+         
+         for attr_name in self.chosen_abilities:
+             current_val = getattr(self.ability, attr_name)
+             setattr(self.ability, attr_name, current_val + 1)
+        
+         return self

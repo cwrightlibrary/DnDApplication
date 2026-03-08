@@ -19,6 +19,27 @@ class Ability(BaseModel):
         return (stat_value - 10) // 2
 
 
+class Skills(str, Enum):
+    ACR = "Acrobatics"
+    ANM = "Animal Handling"
+    ARC = "Arcane"
+    ATH = "Athletics"
+    DEC = "Deception"
+    HIS = "History"
+    INS = "Insight"
+    INT = "Intimidation"
+    INV = "Investigation"
+    MED = "Medicine"
+    NAT = "Nature"
+    PER = "Perception"
+    PEF = "Performance"
+    PES = "Persuasion"
+    REL = "Religion"
+    SLE = "Sleight of Hand"
+    STE = "Stealth"
+    SUR = "Survival"
+
+
 class HeightAndWeight(BaseModel):
     height: Annotated[int, Field(ge=1, le=200)] = 50
     height_mod: str
