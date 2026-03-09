@@ -3,6 +3,7 @@ from pydantic import Field, computed_field, model_validator
 
 from src.enums.race_constants import (
     Ability,
+    AdditionalSpells,
     AgeRange,
     BaseRace,
     BreathShape,
@@ -12,6 +13,7 @@ from src.enums.race_constants import (
     DwarfWeaponProficiencies,
     HeightAndWeight,
     Size,
+    SpellLimit,
 )
 
 
@@ -156,12 +158,25 @@ class Halfling(BaseRace):
         )
     )
     age: AgeRange = Field(default_factory=lambda: AgeRange(mature=20, max=250))
-    language_proficiencies: list[str] = Field(default_factory=lambda: ["Common", "Halfling"])
+    language_proficiencies: list[str] = Field(
+        default_factory=lambda: ["Common", "Halfling"]
+    )
 
 
 # Human
 class Human(BaseRace):
     name: Literal["Human"] = "Human"
+
+    ability: Ability = Field(
+        default_factory=lambda: Ability(
+            strength=1,
+            dexterity=1,
+            constitution=1,
+            intelligence=1,
+            wisdom=1,
+            charisma=1,
+        )
+    )
     height_and_weight: HeightAndWeight = Field(
         default_factory=lambda: HeightAndWeight(
             height=56, height_mod="2d10", weight=110, weight_mod="2d4"
@@ -169,4 +184,35 @@ class Human(BaseRace):
     )
     age: AgeRange = Field(default_factory=lambda: AgeRange(mature=20, max=100))
     language_proficiencies: list[str] = Field(default_factory=lambda: ["Common"])
-    
+
+
+# Tiefling
+class Tiefling(BaseRace):
+    name: Literal["Tiefling"] = "Tiefling"
+
+    ability: Ability = Field(
+        default_factory=lambda: Ability(charisma=2, intelligence=1)
+    )
+    height_and_weight: HeightAndWeight = Field(
+        default_factory=lambda: HeightAndWeight(
+            height=57, height_mod="2d8", weight=110, weight_mod="2d4"
+        )
+    )
+    age: AgeRange = Field(default_factory=lambda: AgeRange(mature=20, max=100))
+    darkvision: int = 60
+    language_proficiencies: list[str] = Field(
+        default_factory=lambda: ["Common", "Infernal"]
+    )
+    resist: list[str] = Field(default_factory=lambda: ["Fire"])
+    additional_spells: AdditionalSpells = Field(
+        default_factory=lambda: AdditionalSpells(
+            innate={
+                "3": SpellLimit(daily={"1": ["Hellish Rebuke"]}),
+                "5": SpellLimit(daily={"1": ["Darkness"]}),
+            },
+            ability="charisma",
+            known={
+                "1": ["Thaumaturgy"],
+            },
+        )
+    )

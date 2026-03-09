@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Annotated
+from typing import Annotated, Optional
 from pydantic import BaseModel, Field
 
 
@@ -129,6 +129,17 @@ class DwarfWeaponProficiencies(str, Enum):
     HANDAXE = "Handaxe"
     LIGHT_HAMMER = "Light Hammer"
     WARHAMMER = "Warhammer"
+
+
+# Tiefling
+class SpellLimit(BaseModel):
+    daily: Optional[dict[str, list[str]]]
+
+
+class AdditionalSpells(BaseModel):
+    innate: Optional[dict[str, SpellLimit]]
+    known: Optional[dict[str, list[str]]]
+    ability: str
 
 
 class BaseRace(BaseModel):
