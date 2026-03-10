@@ -56,8 +56,8 @@ class Dwarf(BaseRace):
     speed: Annotated[int, Field(ge=10, le=40)] = 25
     darkvision: int = 60
     age: AgeRange = Field(default_factory=lambda: AgeRange(mature=20, max=350))
-    tool_proficiencies: DwarfToolProficiences
-    weapon_proficiencies: DwarfWeaponProficiencies
+    tool_proficiencies: list[DwarfToolProficiences]
+    weapon_proficiencies: list[DwarfWeaponProficiencies]
     resistance: DamageType = DamageType.POISON
     language_proficiencies: list[str] = Field(
         default_factory=lambda: ["Common", "Dwarvish"]

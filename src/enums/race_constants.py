@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Annotated, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 from src.helpers.roll_dice import roll_dice
 
@@ -19,6 +19,36 @@ class Ability(BaseModel):
 
     def get_modifier(self, stat_value: int) -> int:
         return (stat_value - 10) // 2
+    
+    @computed_field
+    @property
+    def strength_mod(self) -> int:
+        return self.get_modifier(self.strength)
+    
+    @computed_field
+    @property
+    def dexterity_mod(self) -> int:
+        return self.get_modifier(self.dexterity)
+    
+    @computed_field
+    @property
+    def constitution_mod(self) -> int:
+        return self.get_modifier(self.constitution)
+    
+    @computed_field
+    @property
+    def intelligence_mod(self) -> int:
+        return self.get_modifier(self.intelligence)
+    
+    @computed_field
+    @property
+    def wisdom_mod(self) -> int:
+        return self.get_modifier(self.wisdom)
+    
+    @computed_field
+    @property
+    def charisma_mod(self) -> int:
+        return self.get_modifier(self.charisma)
 
 
 class Skills(str, Enum):

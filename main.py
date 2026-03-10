@@ -6,7 +6,8 @@ from src.models.character import Character
 
 def main():
     chris = Character(
-        name="Chris",
+        name="Frogdo",
+        player_name="Chris",
         level=1,
         character_race=races.Halfling(),
         character_class=classes.Barbarian(chosen_skills=[Skill.ANI, Skill.ATH])
