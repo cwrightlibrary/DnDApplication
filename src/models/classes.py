@@ -1,7 +1,7 @@
 from pydantic import Field, model_validator
 from typing import Literal
 
-from src.enums.class_constants import ArmorType, BaseClass, HitDie, Skill, WeaponType
+from src.enums.class_constants import Armor, LightArmor, MediumArmor, HeavyArmor, Shield, BaseClass, HitDie, Skill, WeaponType
 
 
 # Barbarian
@@ -11,8 +11,8 @@ class Barbarian(BaseClass):
     primary_abilities: list[str] = Field(default_factory=lambda: ["strength"])
     saving_throws: list[str] = Field(default_factory=lambda: ["strength", "constitution"])
 
-    armor_proficiencies: list[ArmorType] = Field(
-        default_factory=lambda: [ArmorType.LIGHT, ArmorType.MEDIUM, ArmorType.SHIELD]
+    armor_proficiencies: list[Armor] = Field(
+        default_factory=lambda: [Armor(armor_type=LightArmor()), Armor(armor_type=MediumArmor()), Armor(armor_type=Shield())]
     )
     weapon_proficiencies: list[WeaponType] = Field(
         default_factory=lambda: [WeaponType.SIMPLE_MELEE, WeaponType.MARTIAL_MELEE]
@@ -49,8 +49,8 @@ class Bard(BaseClass):
     primary_abilities: list[str] = Field(default_factory=lambda: ["charisma"])
     saving_throws: list[str] = Field(default_factory=lambda: ["dexterity", "charisma"])
 
-    armor_proficiencies: list[ArmorType] = Field(
-        default_factory=lambda: [ArmorType.LIGHT]
+    armor_proficiencies: list[Armor] = Field(
+        default_factory=lambda: [Armor(armor_type=LightArmor())]
     )
     weapon_proficiencies: list[WeaponType] = Field(
         default_factory=lambda: [WeaponType.SIMPLE_MELEE, WeaponType.MARTIAL_MELEE, WeaponType.MARTIAL_RANGED]
@@ -77,3 +77,19 @@ class Bard(BaseClass):
 class Cleric(BaseClass):
     name: Literal["Cleric"] = "Cleric"
     
+
+"""
+primary abilities:
+Barbarian: Strength
+Bard: Charisma
+Cleric: Wisdom
+Druid: Wisdom
+Fighter: Strength or Dexterity
+Monk: Dexterity & Wisdom
+Paladin: Strength & Charisma
+Ranger: Dexterity & Wisdom
+Rogue: Dexterity
+Sorcerer: Charisma
+Warlock: Charisma
+Wizard: Intelligence
+"""

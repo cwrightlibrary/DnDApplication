@@ -2,7 +2,6 @@ from typing import Annotated, Literal
 from pydantic import Field, computed_field, model_validator
 
 from src.enums.race_constants import (
-    Ability,
     AdditionalSpells,
     AgeRange,
     BaseRace,
@@ -22,7 +21,6 @@ class Dragonborn(BaseRace):
     name: Literal["Dragonborn"] = "Dragonborn"
     ancestry: DraconicAncestry
 
-    ability: Ability = Field(default_factory=lambda: Ability(strength=2, charisma=1))
     height_and_weight: HeightAndWeight = Field(
         default_factory=lambda: HeightAndWeight(
             height=66, height_mod="2d8", weight=175, weight_mod="2d6"
@@ -42,13 +40,19 @@ class Dragonborn(BaseRace):
     @property
     def breath_weapon(self) -> BreathShape:
         return self.ancestry.breath_weapon
+    
+    @model_validator(mode="after")
+    def ability_add(self) -> "Dragonborn":
+        self.ability.strength += 2
+        self.ability.charisma += 1
+
+        return self
 
 
 # Dwarf
 class Dwarf(BaseRace):
     name: Literal["Dwarf"] = "Dwarf"
 
-    ability: Ability = Field(default_factory=lambda: Ability(constitution=2))
     speed: Annotated[int, Field(ge=10, le=40)] = 25
     darkvision: int = 60
     age: AgeRange = Field(default_factory=lambda: AgeRange(mature=20, max=350))
@@ -59,18 +63,29 @@ class Dwarf(BaseRace):
         default_factory=lambda: ["Common", "Dwarvish"]
     )
 
+    @model_validator(mode="after")
+    def ability_add(self) -> "Dwarf":
+        self.ability.constitution += 2
+
+        return self
+
 
 # Elf
 class Elf(BaseRace):
     name: Literal["Elf"] = "Elf"
 
-    ability: Ability = Field(default_factory=lambda: Ability(dexterity=2))
     age: AgeRange = Field(default_factory=lambda: AgeRange(mature=100, max=750))
     darkvision: int = 60
     skill_proficiencies: list[str] = Field(default_factory=lambda: ["Perception"])
     language_proficiencies: list[str] = Field(
         default_factory=lambda: ["Common", "Elvish"]
     )
+
+    @model_validator(mode="after")
+    def ability_add(self) -> "Elf":
+        self.ability.dexterity += 2
+
+        return self
 
 
 # Gnome
@@ -79,7 +94,6 @@ class Gnome(BaseRace):
     size: Size = Field(default_factory=lambda: Size.SMALL)
 
     speed: Annotated[int, Field(ge=10, le=40)] = 25
-    ability: Ability = Field(default_factory=lambda: Ability(intelligence=2))
     height_and_weight: HeightAndWeight = Field(
         default_factory=lambda: HeightAndWeight(
             height=35, height_mod="2d4", weight=35, weight_mod="None"
@@ -90,6 +104,12 @@ class Gnome(BaseRace):
     language_proficiencies: list[str] = Field(
         default_factory=lambda: ["Common", "Gnomish"]
     )
+
+    @model_validator(mode="after")
+    def ability_add(self) -> "Gnome":
+        self.ability.intelligence += 2
+
+        return self
 
 
 # Half-Elf
@@ -103,7 +123,6 @@ class HalfElf(BaseRace):
     # chosen_skills: list[Literal[""]]
 
     speed: Annotated[int, Field(ge=10, le=40)] = 30
-    ability: Ability = Field(default_factory=lambda: Ability(charisma=2))
     height_and_weight: HeightAndWeight = Field(
         default_factory=lambda: HeightAndWeight(
             height=57, height_mod="2d8", weight=110, weight_mod="2d4"
@@ -123,6 +142,8 @@ class HalfElf(BaseRace):
         for attr_name in self.chosen_abilities:
             current_val = getattr(self.ability, attr_name)
             setattr(self.ability, attr_name, current_val + 1)
+        
+        self.ability.charisma += 2
 
         return self
 
@@ -130,9 +151,6 @@ class HalfElf(BaseRace):
 # Half-Orc
 class HalfOrc(BaseRace):
     name: Literal["Half-Orc"] = "Half-Orc"
-    ability: Ability = Field(
-        default_factory=lambda: Ability(strength=1, constitution=1)
-    )
 
     height_and_weight: HeightAndWeight = Field(
         default_factory=lambda: HeightAndWeight(
@@ -144,6 +162,13 @@ class HalfOrc(BaseRace):
     language_proficiencies: list[str] = Field(default_factory=lambda: ["Common", "Orc"])
     darkvision: int = 60
 
+    @model_validator(mode="after")
+    def ability_add(self) -> "HalfOrc":
+        self.ability.strength += 1
+        self.ability.constitution += 1
+
+        return self
+
 
 # Halfling
 class Halfling(BaseRace):
@@ -151,7 +176,6 @@ class Halfling(BaseRace):
     size: Size = Size.SMALL
     speed: Annotated[int, Field(ge=10, le=40)] = 25
 
-    ability: Ability = Field(default_factory=lambda: Ability(dexterity=2))
     height_and_weight: HeightAndWeight = Field(
         default_factory=lambda: HeightAndWeight(
             height=31, height_mod="2d4", weight=35, weight_mod="None"
@@ -162,21 +186,17 @@ class Halfling(BaseRace):
         default_factory=lambda: ["Common", "Halfling"]
     )
 
+    @model_validator(mode="after")
+    def ability_add(self) -> "Halfling":
+        self.ability.dexterity += 2
+
+        return self
+
 
 # Human
 class Human(BaseRace):
     name: Literal["Human"] = "Human"
 
-    ability: Ability = Field(
-        default_factory=lambda: Ability(
-            strength=1,
-            dexterity=1,
-            constitution=1,
-            intelligence=1,
-            wisdom=1,
-            charisma=1,
-        )
-    )
     height_and_weight: HeightAndWeight = Field(
         default_factory=lambda: HeightAndWeight(
             height=56, height_mod="2d10", weight=110, weight_mod="2d4"
@@ -185,14 +205,22 @@ class Human(BaseRace):
     age: AgeRange = Field(default_factory=lambda: AgeRange(mature=20, max=100))
     language_proficiencies: list[str] = Field(default_factory=lambda: ["Common"])
 
+    @model_validator(mode="after")
+    def ability_add(self) -> "Human":
+        self.ability.strength += 1
+        self.ability.dexterity += 1
+        self.ability.constitution += 1
+        self.ability.intelligence += 1
+        self.ability.wisdom += 1
+        self.ability.charisma += 1
+
+        return self
+
 
 # Tiefling
 class Tiefling(BaseRace):
     name: Literal["Tiefling"] = "Tiefling"
 
-    ability: Ability = Field(
-        default_factory=lambda: Ability(charisma=2, intelligence=1)
-    )
     height_and_weight: HeightAndWeight = Field(
         default_factory=lambda: HeightAndWeight(
             height=57, height_mod="2d8", weight=110, weight_mod="2d4"
@@ -216,3 +244,10 @@ class Tiefling(BaseRace):
             },
         )
     )
+
+    @model_validator(mode="after")
+    def ability_add(self) -> "Tiefling":
+        self.ability.charisma += 2
+        self.ability.intelligence += 1
+
+        return self

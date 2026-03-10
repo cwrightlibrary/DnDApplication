@@ -2,18 +2,20 @@ from enum import Enum
 from typing import Annotated, Optional
 from pydantic import BaseModel, Field
 
+from src.helpers.roll_dice import roll_dice
+
 
 # All categories
 AbilityScore = Annotated[int, Field(ge=0, le=30, default=0)]
 
 
 class Ability(BaseModel):
-    strength: AbilityScore = 0
-    dexterity: AbilityScore = 0
-    constitution: AbilityScore = 0
-    intelligence: AbilityScore = 0
-    wisdom: AbilityScore = 0
-    charisma: AbilityScore = 0
+    strength: AbilityScore = roll_dice()
+    dexterity: AbilityScore = roll_dice()
+    constitution: AbilityScore = roll_dice()
+    intelligence: AbilityScore = roll_dice()
+    wisdom: AbilityScore = roll_dice()
+    charisma: AbilityScore = roll_dice()
 
     def get_modifier(self, stat_value: int) -> int:
         return (stat_value - 10) // 2
