@@ -13,20 +13,7 @@ def main():
         character_class=classes.Barbarian(chosen_skills=[Skill.ANI, Skill.ATH])
     )
 
-    dump = chris.model_dump()
-
-    for k, v in dump.items():
-        if isinstance(v, dict):
-            print(k)
-            for sk, sv in v.items():
-                if isinstance(sv, dict):
-                    print(f"  {sk}")
-                    for ssk, ssv in sv.items():
-                        print(f"    {ssk} {ssv}")
-                else:
-                    print(f"  {sk} {sv}")
-        else:
-            print(k, v)
+    chris.save_pdf_character_sheet("out/test_fill.pdf")
 
 
 if __name__ == "__main__":

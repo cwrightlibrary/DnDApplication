@@ -251,3 +251,15 @@ class Tiefling(BaseRace):
         self.ability.intelligence += 1
 
         return self
+
+all_races: list[str] = [
+    "Dragonborn",
+    "Dwarf",
+    "Elf",
+    "Gnome",
+    "Half-Elf",
+    "Half-Orc",
+    "Halfling",
+    "Human",
+    "Tiefling",
+]

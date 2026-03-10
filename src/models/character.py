@@ -8,6 +8,8 @@ from src.enums.class_constants import (
     Shield,
     BaseClass,
 )
+import src.models.races as races
+import src.models.classes as classes
 
 PdfCharacterData = dict[str, str]
 
@@ -80,9 +82,10 @@ class Character(BaseModel):
         _race = self.character_race
         _ability = _race.ability
 
-        data_dict["ClassLevel"] = f"{_class.name} - {self.level}"
+        data_dict["ClassLevel"] = f"{_class.name} Level {self.level}"
         data_dict["PlayerName"] = f"{self.player_name}"
-        data_dict["Race"] = f"{_class.name}"
+        data_dict["CharacterName"] = f"{self.name}"
+        data_dict["Race "] = f"{_race.name}"
         data_dict["ProfBonus"] = f"{self.proficiency_bonus}"
         data_dict["AC"] = f"{self.armor_class}"
         data_dict["Initiative"] = f"{self.initiative}"
@@ -90,7 +93,7 @@ class Character(BaseModel):
         data_dict["STR"] = f"{_ability.strength}"
         data_dict["STRmod"] = f"{_ability.strength_mod}"
         data_dict["DEX"] = f"{_ability.dexterity}"
-        data_dict["DEXmod"] = f"{_ability.dexterity_mod}"
+        data_dict["DEXmod "] = f"{_ability.dexterity_mod}"
         data_dict["CON"] = f"{_ability.constitution}"
         data_dict["CONmod"] = f"{_ability.constitution_mod}"
         data_dict["INT"] = f"{_ability.intelligence}"
@@ -116,6 +119,13 @@ class Character(BaseModel):
 
             check_box: str = mapping[k]
             data_dict[check_box] = "Yes"
+        
+        # Skills
+        # mapping
+
+        if isinstance(_class, classes.Barbarian) or isinstance(_class, classes.Bard):
+            for skill in _class.chosen_skills:
+                pass
 
         return data_dict
 
