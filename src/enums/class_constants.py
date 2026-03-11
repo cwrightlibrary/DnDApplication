@@ -64,6 +64,7 @@ class Skill(str, Enum):
     ATH = "Athletics"
     DEC = "Deception"
     HIS = "History"
+    INS = "Insight"
     INT = "Intimidation"
     INV = "Investigation"
     MED = "Medicine"

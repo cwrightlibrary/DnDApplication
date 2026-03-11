@@ -76,7 +76,38 @@ class Bard(BaseClass):
 # Cleric
 class Cleric(BaseClass):
     name: Literal["Cleric"] = "Cleric"
-    
+    hit_die: HitDie = HitDie.D8
+    primary_abilities: list[str] = Field(default_factory=lambda: ["wisdom"])
+    saving_throws: list[str] = Field(default_factory=lambda: ["wisdom", "charisma"])
+
+    armor_proficiencies: list[Armor] = Field(
+        default_factory=lambda: [Armor(armor_type=LightArmor()), Armor(armor_type=MediumArmor()), Armor(armor_type=Shield())]
+    )
+    weapon_proficiencies: list[WeaponType] = Field(
+        default_factory=lambda: [WeaponType.SIMPLE_MELEE]
+    )
+
+    choose_skills: int = 2
+    skill_options: list[Skill] = Field(
+        default_factory=lambda: [
+            Skill.HIS,
+            Skill.INS,
+            Skill.MED,
+            Skill.PER,
+            Skill.REL,
+        ]
+    )
+    chosen_skills: list[Skill] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_skills(self) -> "Cleric":
+        if self.chosen_skills:
+            if len(self.chosen_skills) != self.chosen_skills:
+                raise ValueError(f"Must choose exactly {self.choose_skills} skills.")
+            for skill in self.chosen_skills:
+                if skill not in self.skill_options:
+                    raise ValueError(f"'{skill}' is not a valid Cleric skill choice.")
+        return self
 
 """
 primary abilities:
