@@ -7,6 +7,7 @@ from src.enums.class_constants import (
     HeavyArmor,
     Shield,
     BaseClass,
+    Skill,
 )
 import src.models.races as races
 import src.models.classes as classes
@@ -99,7 +100,7 @@ class Character(BaseModel):
         data_dict["INT"] = f"{_ability.intelligence}"
         data_dict["INTmod"] = f"{_ability.intelligence_mod}"
         data_dict["WIS"] = f"{_ability.wisdom}"
-        data_dict["WIS"] = f"{_ability.wisdom_mod}"
+        data_dict["WISmod"] = f"{_ability.wisdom_mod}"
         data_dict["CHA"] = f"{_ability.charisma}"
         data_dict["CHamod"] = f"{_ability.charisma_mod}"
 
