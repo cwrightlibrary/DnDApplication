@@ -1,7 +1,17 @@
 from pydantic import Field, model_validator
 from typing import Literal
 
-from src.enums.class_constants import Armor, LightArmor, MediumArmor, HeavyArmor, Shield, BaseClass, HitDie, Skill, WeaponType
+from src.enums.class_constants import (
+    Armor,
+    LightArmor,
+    MediumArmor,
+    HeavyArmor,
+    Shield,
+    BaseClass,
+    HitDie,
+    Skill,
+    WeaponType,
+)
 
 
 # Barbarian
@@ -9,10 +19,16 @@ class Barbarian(BaseClass):
     name: Literal["Barbarian"] = "Barbarian"
     hit_die: HitDie = HitDie.D12
     primary_abilities: list[str] = Field(default_factory=lambda: ["strength"])
-    saving_throws: list[str] = Field(default_factory=lambda: ["strength", "constitution"])
+    saving_throws: list[str] = Field(
+        default_factory=lambda: ["strength", "constitution"]
+    )
 
     armor_proficiencies: list[Armor] = Field(
-        default_factory=lambda: [Armor(armor_type=LightArmor()), Armor(armor_type=MediumArmor()), Armor(armor_type=Shield())]
+        default_factory=lambda: [
+            Armor(armor_type=LightArmor()),
+            Armor(armor_type=MediumArmor()),
+            Armor(armor_type=Shield()),
+        ]
     )
     weapon_proficiencies: list[WeaponType] = Field(
         default_factory=lambda: [WeaponType.SIMPLE_MELEE, WeaponType.MARTIAL_MELEE]
@@ -38,9 +54,11 @@ class Barbarian(BaseClass):
                 raise ValueError(f"Must choose exactly {self.choose_skills} skills.")
             for skill in self.chosen_skills:
                 if skill not in self.skill_options:
-                    raise ValueError(f"'{skill}' is not a valid Barbarian skill choice.")
+                    raise ValueError(
+                        f"'{skill}' is not a valid Barbarian skill choice."
+                    )
         return self
-    
+
 
 # Bard
 class Bard(BaseClass):
@@ -53,13 +71,15 @@ class Bard(BaseClass):
         default_factory=lambda: [Armor(armor_type=LightArmor())]
     )
     weapon_proficiencies: list[WeaponType] = Field(
-        default_factory=lambda: [WeaponType.SIMPLE_MELEE, WeaponType.MARTIAL_MELEE, WeaponType.MARTIAL_RANGED]
+        default_factory=lambda: [
+            WeaponType.SIMPLE_MELEE,
+            WeaponType.MARTIAL_MELEE,
+            WeaponType.MARTIAL_RANGED,
+        ]
     )
 
     choose_skills: int = 3
-    skill_options: list[Skill] = Field(
-        default_factory=lambda: [s for s in Skill]
-    )
+    skill_options: list[Skill] = Field(default_factory=lambda: [s for s in Skill])
     chosen_skills: list[Skill] = Field(default_factory=list)
 
     @model_validator(mode="after")
@@ -81,7 +101,11 @@ class Cleric(BaseClass):
     saving_throws: list[str] = Field(default_factory=lambda: ["wisdom", "charisma"])
 
     armor_proficiencies: list[Armor] = Field(
-        default_factory=lambda: [Armor(armor_type=LightArmor()), Armor(armor_type=MediumArmor()), Armor(armor_type=Shield())]
+        default_factory=lambda: [
+            Armor(armor_type=LightArmor()),
+            Armor(armor_type=MediumArmor()),
+            Armor(armor_type=Shield()),
+        ]
     )
     weapon_proficiencies: list[WeaponType] = Field(
         default_factory=lambda: [WeaponType.SIMPLE_MELEE]
@@ -108,6 +132,57 @@ class Cleric(BaseClass):
                 if skill not in self.skill_options:
                     raise ValueError(f"'{skill}' is not a valid Cleric skill choice.")
         return self
+
+
+# Druid
+class Druid(BaseClass):
+    name: Literal["Druid"] = "Druid"
+    hit_die: HitDie = HitDie.D8
+    primary_abilities: list[str] = Field(default_factory=lambda: ["wisdom"])
+    saving_throws: list[str] = Field(default_factory=lambda: ["intelligence", "wisdom"])
+
+    armor_proficiencies: list[Armor] = Field(
+        default_factory=lambda: [
+            Armor(armor_type=LightArmor()),
+            Armor(armor_type=MediumArmor()),
+            Armor(armor_type=Shield()),
+        ]
+    )
+    weapon_proficiencies: list[WeaponType] = Field(
+        default_factory=lambda: [WeaponType.SIMPLE_MELEE]
+    )
+
+    choose_skills: int = 2
+    skill_options: list[Skill] = Field(
+        default_factory=lambda: [
+            Skill.ARC,
+            Skill.ANI,
+            Skill.INS,
+            Skill.MED,
+            Skill.NAT,
+            Skill.PER,
+            Skill.REL,
+            Skill.SUR,
+        ]
+    )
+    chosen_skills: list[Skill] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_skills(self) -> "Druid":
+        if self.chosen_skills:
+            if len(self.chosen_skills) != self.choose_skills:
+                raise ValueError(f"Must choose exactly {self.choose_skills} skills.")
+            for skill in self.chosen_skills:
+                if skill not in self.skill_options:
+                    raise ValueError(f"'{skill}' is not a valid Druid skill choice.")
+        return self
+
+
+# Fighter
+class Fighter(BaseClass):
+    name: Literal["Fighter"] = "Fighter"
+    hit_die: HitDie = HitDie.D10
+
 
 """
 primary abilities:
