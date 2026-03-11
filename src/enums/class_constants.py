@@ -78,6 +78,28 @@ class Skill(str, Enum):
     SUR = "Survival"
 
 
+SkillAbilityMapping: dict[Skill, str] = {
+    Skill.ACR: "dexterity",
+    Skill.ANI: "wisdom",
+    Skill.ARC: "intelligence",
+    Skill.ATH: "strength",
+    Skill.DEC: "charisma",
+    Skill.HIS: "intelligence",
+    Skill.INS: "wisdom",
+    Skill.INT: "charisma",
+    Skill.INV: "intelligence",
+    Skill.MED: "wisdom",
+    Skill.NAT: "intelligence",
+    Skill.PEC: "wisdom",
+    Skill.PER: "charisma",
+    Skill.PES: "charisma",
+    Skill.REL: "intelligence",
+    Skill.SLE: "dexterity",
+    Skill.STE: "dexterity",
+    Skill.SUR: "wisdom",
+}
+
+
 class BaseClass(BaseModel):
     name: str
     hit_die: HitDie

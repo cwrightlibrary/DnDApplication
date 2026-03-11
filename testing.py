@@ -1,8 +1,8 @@
-from src.ui.main_app import MainApplication
+from src.ui.main_app import MainApp
 
 
 def main() -> None:
-    app = MainApplication()
+    app = MainApp()
     app.mainloop()
 
 

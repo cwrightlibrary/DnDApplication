@@ -8,6 +8,7 @@ from src.enums.class_constants import (
     Shield,
     BaseClass,
     Skill,
+    SkillAbilityMapping
 )
 import src.models.races as races
 import src.models.classes as classes
@@ -75,6 +76,20 @@ class Character(BaseModel):
             )
             throws[throw] = mod + self.proficiency_bonus
         return throws
+    
+    @computed_field
+    @property
+    def skills(self) -> dict[Skill, int]:
+        skills: dict[Skill, int] = {}
+        if isinstance(self.character_class, classes.Barbarian) or isinstance(self.character_class, classes.Bard) or isinstance(self.character_class, classes.Cleric):
+            for skill in self.character_class.chosen_skills:
+                print(skill)
+                mod = self.character_race.ability.get_modifier(
+                    getattr(self.character_race.ability, SkillAbilityMapping[skill])
+                )
+                print(mod)
+                skills[skill] = mod + self.proficiency_bonus
+        return skills
 
     def get_character_data_dict(self) -> PdfCharacterData:
         data_dict: dict[str, str] = {}
@@ -122,11 +137,30 @@ class Character(BaseModel):
             data_dict[check_box] = "Yes"
         
         # Skills
-        # mapping
+        skill_mapping: dict[Skill, list[str]] = {
+            Skill.ACR: ["Acrobatics", "Check Box 23"],
+            Skill.ANI: ["Animal", "Check Box 24"],
+            Skill.ARC: ["Arcana", "Check Box 25"],
+            Skill.ATH: ["Athletics", "Check Box 26"],
+            Skill.DEC: ["Deception ", "Check Box 27"],
+            Skill.HIS: ["History ", "Check Box 28"],
+            Skill.INS: ["Insight", "Check Box 29"],
+            Skill.INT: ["Intimidation", "Check Box 30"],
+            Skill.INV: ["Investigation", "Check Box 31"],
+            Skill.MED: ["Medicine", "Check Box 32"],
+            Skill.NAT: ["Nature", "Check Box 33"],
+            Skill.PEC: ["Perception", "Check Box 34"],
+            Skill.PER: ["Performance", "Check Box 35"],
+            Skill.PES: ["Persuasion", "Check Box 36"],
+            Skill.REL: ["Religion", "Check Box 37"],
+            Skill.SLE: ["Sleight of Hand", "Check Box 38"],
+            Skill.STE: ["Stealth", "Check Box 39"],
+            Skill.SUR: ["Survival", "Check Box 40"],
+        }
 
-        if isinstance(_class, classes.Barbarian) or isinstance(_class, classes.Bard):
-            for skill in _class.chosen_skills:
-                pass
+        for skill, skill_val in self.skills.items():
+            data_dict[skill_mapping[skill][0]] = f"{skill_val}"
+            data_dict[skill_mapping[skill][1]] = "Yes"
 
         return data_dict
 
