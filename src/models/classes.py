@@ -184,6 +184,20 @@ class Fighter(BaseClass):
     hit_die: HitDie = HitDie.D10
 
 
+all_classes: list[str] = [
+    "Barbarian",
+    "Bard",
+    "Cleric",
+    "Druid",
+    # "Fighter",
+    # "Monk",
+    # "Paladin",
+    # "Ranger",
+    # "Rogue",
+    # "Sorcerer",
+    # "Warlock",
+    # "Wizard",
+]
 """
 primary abilities:
 Barbarian: Strength

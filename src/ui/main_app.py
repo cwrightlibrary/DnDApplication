@@ -88,7 +88,16 @@ class MainApp(tk.Tk):
         self.race_selector.grid(row=1, column=0, padx=5, pady=5, sticky="new")
 
     def _create_class_info_widgets(self, frame: tk.LabelFrame) -> None:
-        pass
+        frame.grid_rowconfigure((0, 1), weight=1)
+        frame.grid_columnconfigure((0, 1), weight=1)
+
+        class_label: tk.Label = tk.Label(frame, text="Choose Class")
+        class_label.grid(row=0, column=0, padx=5, pady=5, sticky="sew")
+
+        self.class_selection: tk.StringVar = tk.StringVar(value="Barbarian")
+
+        self.class_selector: tk.OptionMenu = tk.OptionMenu(frame, self.class_selection, *classes.all_classes)
+        self.class_selector.grid(row=1, column=0, padx=5, pady=5, sticky="new")
 
     def create_user(self) -> None:
         name: str = self.user_entry.get()
