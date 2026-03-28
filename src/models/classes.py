@@ -454,6 +454,85 @@ class Sorcerer(BaseClass):
 class Warlock(BaseClass):
     name: Literal["Warlock"] = "Warlock"
     hit_die: HitDie = HitDie.D8
+    primary_abilities: list[str] = Field(default_factory=lambda: ["charisma"])
+    saving_throws: list[str] = Field(default_factory=lambda: ["wisdom", "charisma"])
+
+    armor_proficiencies: list[Armor] = Field(
+        default_factory=lambda: [Armor(armor_type=LightArmor())]
+    )
+    weapon_proficiencies: list[WeaponType] = Field(
+        default_factory=lambda: [
+            WeaponType.SIMPLE_MELEE,
+            WeaponType.SIMPLE_RANGED,
+        ]
+    )
+
+    choose_skills: int = 2
+    skill_options: list[Skill] = Field(
+        default_factory=lambda: [
+            Skill.ARC,
+            Skill.DEC,
+            Skill.HIS,
+            Skill.INT,
+            Skill.INV,
+            Skill.NAT,
+            Skill.REL,
+        ]
+    )
+    chosen_skills: list[Skill] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_skills(self) -> "Warlock":
+        if self.chosen_skills:
+            if len(self.chosen_skills) != self.choose_skills:
+                raise ValueError(f"Must choose exactly {self.choose_skills} skills.")
+            for skill in self.chosen_skills:
+                if skill not in self.skill_options:
+                    raise ValueError(
+                        f"'{skill}' is not a valid Barbarian skill choice."
+                    )
+        return self
+
+
+# Wizard
+class Wizard(BaseClass):
+    name: Literal["Wizard"] = "Wizard"
+    hit_die: HitDie = HitDie.D6
+    primary_abilities: list[str] = Field(default_factory=lambda: ["intelligence"])
+    saving_throws: list[str] = Field(default_factory=lambda: ["intelligence", "wisdom"])
+
+    weapon_proficiencies: list[WeaponType] = Field(
+        default_factory=lambda: [
+            WeaponType.SIMPLE_MELEE,
+            WeaponType.SIMPLE_RANGED,
+        ]
+    )
+
+    choose_skills: int = 2
+    skill_options: list[Skill] = Field(
+        default_factory=lambda: [
+            Skill.ARC,
+            Skill.HIS,
+            Skill.INS,
+            Skill.INV,
+            Skill.MED,
+            Skill.NAT,
+            Skill.REL,
+        ]
+    )
+    chosen_skills: list[Skill] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_skills(self) -> "Wizard":
+        if self.chosen_skills:
+            if len(self.chosen_skills) != self.choose_skills:
+                raise ValueError(f"Must choose exactly {self.choose_skills} skills.")
+            for skill in self.chosen_skills:
+                if skill not in self.skill_options:
+                    raise ValueError(
+                        f"'{skill}' is not a valid Barbarian skill choice."
+                    )
+        return self
 
 
 all_classes: list[str] = [
@@ -461,28 +540,12 @@ all_classes: list[str] = [
     "Bard",
     "Cleric",
     "Druid",
-    "Fighter",
+    # "Fighter",
     "Monk",
     "Paladin",
     "Ranger",
     "Rogue",
     "Sorcerer",
-    # "Warlock",
-    # "Wizard",
+    "Warlock",
+    "Wizard",
 ]
-
-"""
-primary abilities:
-Barbarian: Strength
-Bard: Charisma
-Cleric: Wisdom
-Druid: Wisdom
-Fighter: Strength or Dexterity
-Monk: Dexterity & Wisdom
-Paladin: Strength & Charisma
-Ranger: Dexterity & Wisdom
-Rogue: Dexterity
-Sorcerer: Charisma
-Warlock: Charisma
-Wizard: Intelligence
-"""
