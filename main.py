@@ -1,19 +1,9 @@
-import src.models.races as races
-import src.models.classes as classes
-from src.enums.class_constants import Skill
-from src.models.character import Character
+from src.ui.main_app import MainApp
 
 
-def main():
-    chris = Character(
-        name="Frogdo",
-        player_name="Chris",
-        level=1,
-        character_race=races.Halfling(),
-        character_class=classes.Barbarian(chosen_skills=[Skill.ANI, Skill.ATH])
-    )
-
-    chris.save_pdf_character_sheet("out/test_fill.pdf")
+def main() -> None:
+    app = MainApp()
+    app.mainloop()
 
 
 if __name__ == "__main__":

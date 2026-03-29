@@ -8,7 +8,7 @@ from src.enums.class_constants import (
     Shield,
     BaseClass,
     Skill,
-    SkillAbilityMapping
+    SkillAbilityMapping,
 )
 import src.models.races as races
 import src.models.classes as classes
@@ -32,7 +32,7 @@ class Character(BaseModel):
     @computed_field
     @property
     def armor_class(self) -> int:
-        _armor_class = 10 + self.character_race.ability.dexterity
+        _armor_class = 10 + self.character_race.ability.dexterity_mod
 
         if self.character_class.armor_proficiencies:
             for armor in self.character_class.armor_proficiencies:
@@ -76,12 +76,16 @@ class Character(BaseModel):
             )
             throws[throw] = mod + self.proficiency_bonus
         return throws
-    
+
     @computed_field
     @property
     def skills(self) -> dict[Skill, int]:
         skills: dict[Skill, int] = {}
-        if isinstance(self.character_class, classes.Barbarian) or isinstance(self.character_class, classes.Bard) or isinstance(self.character_class, classes.Cleric):
+        if (
+            isinstance(self.character_class, classes.Barbarian)
+            or isinstance(self.character_class, classes.Bard)
+            or isinstance(self.character_class, classes.Cleric)
+        ):
             for skill in self.character_class.chosen_skills:
                 print(skill)
                 mod = self.character_race.ability.get_modifier(
@@ -99,6 +103,7 @@ class Character(BaseModel):
         _ability = _race.ability
 
         data_dict["ClassLevel"] = f"{_class.name} Level {self.level}"
+        data_dict["Spellcasting Class 2"] = f"{_class.name}"
         data_dict["PlayerName"] = f"{self.player_name}"
         data_dict["CharacterName"] = f"{self.name}"
         data_dict["Race "] = f"{_race.name}"
@@ -106,18 +111,42 @@ class Character(BaseModel):
         data_dict["AC"] = f"{self.armor_class}"
         data_dict["Initiative"] = f"{self.initiative}"
         data_dict["Speed"] = f"{_race.speed}"
-        data_dict["STR"] = f"{_ability.strength}"
-        data_dict["STRmod"] = f"{_ability.strength_mod}"
-        data_dict["DEX"] = f"{_ability.dexterity}"
-        data_dict["DEXmod "] = f"{_ability.dexterity_mod}"
-        data_dict["CON"] = f"{_ability.constitution}"
-        data_dict["CONmod"] = f"{_ability.constitution_mod}"
-        data_dict["INT"] = f"{_ability.intelligence}"
-        data_dict["INTmod"] = f"{_ability.intelligence_mod}"
-        data_dict["WIS"] = f"{_ability.wisdom}"
-        data_dict["WISmod"] = f"{_ability.wisdom_mod}"
-        data_dict["CHA"] = f"{_ability.charisma}"
-        data_dict["CHamod"] = f"{_ability.charisma_mod}"
+        data_dict["STR"] = (
+            f"{_ability.strength_mod}"
+            if _ability.strength_mod <= 0
+            else f"+{_ability.strength_mod}"
+        )
+        data_dict["STRmod"] = f"{_ability.strength}"
+        data_dict["DEX"] = (
+            f"{_ability.dexterity_mod}"
+            if _ability.dexterity_mod <= 0
+            else f"+{_ability.dexterity_mod}"
+        )
+        data_dict["DEXmod "] = f"{_ability.dexterity}"
+        data_dict["CON"] = (
+            f"{_ability.constitution_mod}"
+            if _ability.constitution_mod <= 0
+            else f"+{_ability.constitution_mod}"
+        )
+        data_dict["CONmod"] = f"{_ability.constitution}"
+        data_dict["INT"] = (
+            f"{_ability.intelligence_mod}"
+            if _ability.intelligence_mod <= 0
+            else f"+{_ability.intelligence_mod}"
+        )
+        data_dict["INTmod"] = f"{_ability.intelligence}"
+        data_dict["WIS"] = (
+            f"{_ability.wisdom_mod}"
+            if _ability.wisdom_mod <= 0
+            else f"+{_ability.wisdom_mod}"
+        )
+        data_dict["WISmod"] = f"{_ability.wisdom}"
+        data_dict["CHA"] = (
+            f"{_ability.charisma_mod}"
+            if _ability.charisma_mod <= 0
+            else f"+{_ability.charisma_mod}"
+        )
+        data_dict["CHamod"] = f"{_ability.charisma}"
 
         # Saving throws
         mapping: dict[str, str] = {
@@ -135,32 +164,49 @@ class Character(BaseModel):
 
             check_box: str = mapping[k]
             data_dict[check_box] = "Yes"
-        
+
         # Skills
         skill_mapping: dict[Skill, list[str]] = {
-            Skill.ACR: ["Acrobatics", "Check Box 23"],
-            Skill.ANI: ["Animal", "Check Box 24"],
-            Skill.ARC: ["Arcana", "Check Box 25"],
-            Skill.ATH: ["Athletics", "Check Box 26"],
-            Skill.DEC: ["Deception ", "Check Box 27"],
-            Skill.HIS: ["History ", "Check Box 28"],
-            Skill.INS: ["Insight", "Check Box 29"],
-            Skill.INT: ["Intimidation", "Check Box 30"],
-            Skill.INV: ["Investigation", "Check Box 31"],
-            Skill.MED: ["Medicine", "Check Box 32"],
-            Skill.NAT: ["Nature", "Check Box 33"],
-            Skill.PEC: ["Perception", "Check Box 34"],
-            Skill.PER: ["Performance", "Check Box 35"],
-            Skill.PES: ["Persuasion", "Check Box 36"],
-            Skill.REL: ["Religion", "Check Box 37"],
-            Skill.SLE: ["Sleight of Hand", "Check Box 38"],
-            Skill.STE: ["Stealth", "Check Box 39"],
-            Skill.SUR: ["Survival", "Check Box 40"],
+            Skill.ACR: ["Acrobatics", "Check Box 23", "dexterity"],
+            Skill.ANI: ["Animal", "Check Box 24", "wisdom"],
+            Skill.ARC: ["Arcana", "Check Box 25", "intelligence"],
+            Skill.ATH: ["Athletics", "Check Box 26", "strength"],
+            Skill.DEC: ["Deception ", "Check Box 27", "charisma"],
+            Skill.HIS: ["History ", "Check Box 28", "intelligence"],
+            Skill.INS: ["Insight", "Check Box 29", "wisdom"],
+            Skill.INT: ["Intimidation", "Check Box 30", "charisma"],
+            Skill.INV: ["Investigation ", "Check Box 31", "intelligence"],
+            Skill.MED: ["Medicine", "Check Box 32", "wisdom"],
+            Skill.NAT: ["Nature", "Check Box 33", "intelligence"],
+            Skill.PEC: ["Perception ", "Check Box 34", "wisdom"],
+            Skill.PER: ["Performance", "Check Box 35", "charisma"],
+            Skill.PES: ["Persuasion", "Check Box 36", "charisma"],
+            Skill.REL: ["Religion", "Check Box 37", "intelligence"],
+            Skill.SLE: ["SleightofHand", "Check Box 38", "dexterity"],
+            Skill.STE: ["Stealth ", "Check Box 39", "dexterity"],
+            Skill.SUR: ["Survival", "Check Box 40", "wisdom"],
         }
+
+        ability_mapping: dict[str, int] = {
+            "strength": self.character_race.ability.strength_mod,
+            "dexterity": self.character_race.ability.dexterity_mod,
+            "constitution": self.character_race.ability.constitution_mod,
+            "intelligence": self.character_race.ability.intelligence_mod,
+            "wisdom": self.character_race.ability.wisdom_mod,
+            "charisma": self.character_race.ability.charisma_mod,
+        }
+
+        assigned_skills: list[Skill] = []
 
         for skill, skill_val in self.skills.items():
             data_dict[skill_mapping[skill][0]] = f"{skill_val}"
             data_dict[skill_mapping[skill][1]] = "Yes"
+            assigned_skills.append(skill)
+        
+        for ability in self.character_race.ability:
+            for skill, ability_type in skill_mapping.items():
+                if ability[0] == ability_type[2] and skill not in assigned_skills:
+                    data_dict[ability_type[0]] = str(ability_mapping[ability[0]])
 
         return data_dict
 

@@ -40,12 +40,11 @@ class Dragonborn(BaseRace):
     @property
     def breath_weapon(self) -> BreathShape:
         return self.ancestry.breath_weapon
-    
+
     @model_validator(mode="after")
     def ability_add(self) -> "Dragonborn":
         self.ability.strength += 2
         self.ability.charisma += 1
-
         return self
 
 
@@ -56,8 +55,8 @@ class Dwarf(BaseRace):
     speed: Annotated[int, Field(ge=10, le=40)] = 25
     darkvision: int = 60
     age: AgeRange = Field(default_factory=lambda: AgeRange(mature=20, max=350))
-    tool_proficiencies: list[DwarfToolProficiences]
-    weapon_proficiencies: list[DwarfWeaponProficiencies]
+    tool_proficiencies: list[DwarfToolProficiences] = Field(default_factory=lambda: [p for p in DwarfToolProficiences])
+    weapon_proficiencies: list[DwarfWeaponProficiencies] = Field(default_factory=lambda: [p for p in DwarfWeaponProficiencies])
     resistance: DamageType = DamageType.POISON
     language_proficiencies: list[str] = Field(
         default_factory=lambda: ["Common", "Dwarvish"]
@@ -66,7 +65,6 @@ class Dwarf(BaseRace):
     @model_validator(mode="after")
     def ability_add(self) -> "Dwarf":
         self.ability.constitution += 2
-
         return self
 
 
@@ -84,7 +82,6 @@ class Elf(BaseRace):
     @model_validator(mode="after")
     def ability_add(self) -> "Elf":
         self.ability.dexterity += 2
-
         return self
 
 
@@ -108,7 +105,6 @@ class Gnome(BaseRace):
     @model_validator(mode="after")
     def ability_add(self) -> "Gnome":
         self.ability.intelligence += 2
-
         return self
 
 
@@ -142,9 +138,8 @@ class HalfElf(BaseRace):
         for attr_name in self.chosen_abilities:
             current_val = getattr(self.ability, attr_name)
             setattr(self.ability, attr_name, current_val + 1)
-        
-        self.ability.charisma += 2
 
+        self.ability.charisma += 2
         return self
 
 
@@ -166,7 +161,6 @@ class HalfOrc(BaseRace):
     def ability_add(self) -> "HalfOrc":
         self.ability.strength += 1
         self.ability.constitution += 1
-
         return self
 
 
@@ -189,7 +183,6 @@ class Halfling(BaseRace):
     @model_validator(mode="after")
     def ability_add(self) -> "Halfling":
         self.ability.dexterity += 2
-
         return self
 
 
@@ -213,7 +206,6 @@ class Human(BaseRace):
         self.ability.intelligence += 1
         self.ability.wisdom += 1
         self.ability.charisma += 1
-
         return self
 
 
@@ -249,8 +241,8 @@ class Tiefling(BaseRace):
     def ability_add(self) -> "Tiefling":
         self.ability.charisma += 2
         self.ability.intelligence += 1
-
         return self
+
 
 all_races: list[str] = [
     "Dragonborn",

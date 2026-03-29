@@ -32,7 +32,7 @@ class MainApp(tk.Tk):
         self._create_widgets()
 
     def _create_widgets(self) -> None:
-        self.grid_rowconfigure((0, 1, 2, 3), weight=1)
+        self.grid_rowconfigure((0, 1, 2), weight=1)
         self.grid_columnconfigure(0, weight=1)
 
         user_info_frame: tk.LabelFrame = tk.LabelFrame(self, text="User Information")
@@ -86,7 +86,9 @@ class MainApp(tk.Tk):
 
         self.race_selection: tk.StringVar = tk.StringVar(value="Dragonborn")
 
-        self.race_selector: tk.OptionMenu = tk.OptionMenu(frame, self.race_selection, *races.all_races)
+        self.race_selector: tk.OptionMenu = tk.OptionMenu(
+            frame, self.race_selection, *races.all_races
+        )
         self.race_selector.grid(row=1, column=0, padx=5, pady=5, sticky="new")
 
     def _create_class_info_widgets(self, frame: tk.LabelFrame) -> None:
@@ -135,23 +137,27 @@ class MainApp(tk.Tk):
             frame,
             self.class_var,
             *self.skills_map.keys(),
-            command=self._update_class_options # type:ignore
+            command=self._update_class_options,  # type:ignore
         )
         self.class_menu.grid(row=1, column=0, padx=5, pady=5, sticky="n")
         self.class_menu.config(width=20)
 
         self.MAX_SKILLS: int = self.amount_of_skills_map.get(self.class_var.get(), 0)
 
-        self.skill_listbox = tk.Listbox(frame, selectmode="multiple", exportselection=0, height=6)
+        self.skill_listbox = tk.Listbox(
+            frame, selectmode="multiple", exportselection=0, height=6
+        )
         self.skill_listbox.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
         self.skill_listbox.bind("<<ListboxSelect>>", self._enforce_max_skills)
 
-        scrollbar: tk.Scrollbar = tk.Scrollbar(frame, orient="vertical", command=self.skill_listbox.yview)
+        scrollbar: tk.Scrollbar = tk.Scrollbar(
+            frame, orient="vertical", command=self.skill_listbox.yview
+        )
         scrollbar.grid(row=1, column=2, sticky="ns")
         self.skill_listbox.config(yscrollcommand=scrollbar.set)
 
         self._update_class_options(self.class_var.get())
-    
+
     def _enforce_max_skills(self, event) -> None:
         selected_indices = self.skill_listbox.curselection()
 
@@ -168,11 +174,11 @@ class MainApp(tk.Tk):
 
         for choice in new_choices:
             self.skill_listbox.insert(tk.END, choice)
-    
+
     def _get_selected_skills(self) -> list[str]:
         indices = self.skill_listbox.curselection()
         return [self.skill_listbox.get(i) for i in indices]
-    
+
     def _setup_mappings(self):
         self.race_factory = {
             "Dragonborn": races.Dragonborn,
@@ -191,7 +197,7 @@ class MainApp(tk.Tk):
             "Bard": classes.Bard,
             "Cleric": classes.Cleric,
             "Druid": classes.Druid,
-            "Fighter": classes.Fighter,
+            # "Fighter": classes.Fighter,
             "Monk": classes.Monk,
             "Paladin": classes.Paladin,
             "Ranger": classes.Ranger,
@@ -205,21 +211,6 @@ class MainApp(tk.Tk):
         name: str = self.user_entry.get()
         char: str = self.char_name_entry.get()
         level: str = str(self.level_entry.get())
-        race: str = str(self.race_selection.get())
-        class_s: str = str(self.class_var.get())
-        skills: str = ", ".join(self._get_selected_skills())
-
-        return_str: str = (
-            "Created character:\n"
-            f" Name: {name}\n"
-            f" Character Name: {char}\n"
-            f" Level: {level}\n"
-            f" Race: {race}\n"
-            f" Class: {class_s}\n"
-            f" Skills: {skills}\n"
-        )
-
-        print(return_str)
 
         race_str = self.race_selection.get()
         class_str = self.class_var.get()
@@ -232,14 +223,15 @@ class MainApp(tk.Tk):
         selected_race = RaceClass()
         if class_str not in ["Fighter", "Monk"]:
             selected_job = JobClass(chosen_skills=selected_skills)
-        elif class_str == "Monk":
+        else:
             selected_job = JobClass()
-        
+
         character = Character(
-            name=name,
-            player_name=char,
+            name=char,
+            player_name=name,
             level=int(level),
             character_race=selected_race,
             character_class=selected_job,
         )
+
         character.save_pdf_character_sheet("out/usage_test.pdf")

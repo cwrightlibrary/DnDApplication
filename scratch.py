@@ -1,21 +1,14 @@
-class hello:
-    name = "Hello, World"
-
-class goodbye:
-    name = "Goodbye, World"
-
-class here:
-    name = "Here I Am, World"
+from src.models.character import Character
+from src.models.races import Halfling
+from src.models.classes import Barbarian
 
 
-classes_list = {
-    "hello": hello,
-    "goodbye": goodbye,
-    "here": here,
-}
+test_char = Character(
+    name="Test",
+    player_name="Test",
+    character_race=Halfling(),
+    character_class=Barbarian(),
+)
 
-selected_option = "goodbye"
-
-selected_class = classes_list.get(selected_option)
-
-print(selected_class.name)
+for ability in test_char.character_race.ability:
+    print(ability)
